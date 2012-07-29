@@ -1,7 +1,7 @@
 module WashOutHelper
   def wsdl_data(xml, params)
     params.each do |param|
-      tag_name = "tns:#{param.name}"
+      tag_name = "#{param.name}"
 
       if !param.struct?
         if !param.multiplied
@@ -18,9 +18,13 @@ module WashOutHelper
             wsdl_data(xml, param.map)
           end
         else
-          param.map.each do |p|
-            xml.tag! tag_name, "xsi:type" => param.namespaced_type do
-              wsdl_data(xml, p.map)
+          xml.tag! tag_name, "xmlns:soap-enc" => "http://schemas.xmlsoap.org/soap/encoding/",
+                             "soap-enc:arrayType" => "#{param.namespaced_type.singularize}[#{param.map.size}]",
+                             "xsi:type" => "soap-enc:Array" do
+            param.map.each do |p|
+              xml.tag! 'item' do
+                wsdl_data(xml, p.map)
+              end
             end
           end
         end
@@ -33,11 +37,20 @@ module WashOutHelper
 
     if param.struct?
       if !defined.include?(param.basic_type)
-        xml.tag! "xsd:complexType", :name => param.basic_type do
+        xml.tag! "xsd:complexType", :name => (param.multiplied ? param.basic_type.singularize : param.basic_type) do
           xml.tag! "xsd:sequence" do
             param.map.each do |value|
               more << value if value.struct?
               xml.tag! "xsd:element", wsdl_occurence(value, false, :name => value.name, :type => value.namespaced_type)
+            end
+          end
+        end
+        if param.multiplied
+          xml.tag! "xsd:complexType", :name => param.basic_type.pluralize do
+            xml.tag! "xsd:complexContent" do
+              xml.tag! "xsd:restriction", :base => "soap-enc:Array" do
+                xml.tag! "xsd:attribute", :ref => "soap-enc:arrayType", :"wsdl:arrayType" => "tns:#{param.basic_type.singularize}[]"
+              end
             end
           end
         end
