@@ -20,7 +20,7 @@ xml.definitions 'xmlns' => 'http://schemas.xmlsoap.org/wsdl/',
             end
           end
         end
-        xml.tag! "xsd:element", :name => "#{operation}Response" do
+        xml.tag! "xsd:element", :name => "#{operation}_response" do
           xml.tag! "xsd:complexType" do
             xml.tag! "xsd:sequence" do
               formats[:out].each do |p|
@@ -40,8 +40,8 @@ xml.definitions 'xmlns' => 'http://schemas.xmlsoap.org/wsdl/',
   xml.portType :name => "#{@name}_port" do
     @map.keys.each do |operation|
       xml.operation :name => operation do
-        xml.input :message => "tns:#{operation}Request"
-        xml.output :message => "tns:#{operation}Response"
+        xml.input :message => "tns:#{operation}_request"
+        xml.output :message => "tns:#{operation}_response"
       end
     end
   end
@@ -68,11 +68,11 @@ xml.definitions 'xmlns' => 'http://schemas.xmlsoap.org/wsdl/',
   end
 
   @map.each do |operation, formats|
-    xml.message :name => "#{operation}Request" do
+    xml.message :name => "#{operation}_request" do
       xml.part :name => 'parameters', :element => "tns:#{operation}"
     end
-    xml.message :name => "#{operation}Response" do
-      xml.part :name => 'parameters', :element => "tns:#{operation}Response"
+    xml.message :name => "#{operation}_response" do
+      xml.part :name => 'parameters', :element => "tns:#{operation}_response"
     end
   end
 end
