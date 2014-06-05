@@ -13,7 +13,7 @@ Gem::Specification.new do |s|
   s.files         = `git ls-files`.split("\n")
   s.require_paths = ["lib"]
 
-  s.add_dependency("nori")
+  s.add_dependency("nori", "= 1.1.0")
   s.add_development_dependency("rspec-rails")
   s.add_development_dependency("appraisal")
   s.add_development_dependency("tzinfo")
